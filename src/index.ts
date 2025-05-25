@@ -2,29 +2,31 @@ import alt from "alt-client";
 
 const browser = new alt.WebView('http://resource/frontend/index.html')
 
-browser.on('f:c:toggleEngineApi', (payload: any) => {
-    alt.log('f:c:toggleEngineApi worked!')
+let engineState = false;
+browser.on('f:c:toggleEngineState', (payload: any) => {
+    alt.log('f:c:toggleEngineState worked!')
     alt.log(payload)
-    alt.log('trying to send message to c:f:toggleEngineApi')
+    alt.log('trying to send message to c:f:toggleEngineState')
+    engineState = !engineState
     setTimeout(() => {
-        browser.emit('c:f:toggleEngineApi', {
+        browser.emit('c:f:toggleEngineState', {
             success: true,
-            data: true,
+            data: engineState,
             error: null
         })
-    }, 5000)
+    }, 300)
 })
 
-browser.on("f:c:getEngineApi", () => {
-    alt.log('f:c:getEngineApi worked!')
-    alt.log('trying to send message to c:f:getEngineApi')
+browser.on("f:c:getEngineState", () => {
+    alt.log('f:c:getEngineState worked!')
+    alt.log('trying to send message to c:f:getEngineState')
     setTimeout(() => {
-        browser.emit('c:f:getEngineApi', {
+        browser.emit('c:f:getEngineState', {
             success: true,
-            data: false,
+            data: engineState,
             error: null
         })
-    }, 5000)
+    }, 1000)
 })
 browser.focus();
 alt.showCursor(true);
