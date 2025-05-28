@@ -9,7 +9,8 @@ export default defineConfig({
             fileName: 'index',
             formats: ['es']
         },
-        outDir: 'A:/Alone/PROJECTS/GTA5/Project-1114/server/resources/service-transport/client',
+        //outDir: 'A:/Alone/PROJECTS/GTA5/Project-1114/server/resources/service-transport/client',
+        outDir: 'build',
         rollupOptions: {
             external: ["alt-client", "natives"]
         }
