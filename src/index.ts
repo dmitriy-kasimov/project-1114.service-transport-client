@@ -14,12 +14,14 @@ alt.showCursor(true);
 let engineState = false;
 browser.on('f:c:toggleEngineState', () => {
     engineState = !engineState
+    alt.emit('c:c:alert', JSON.stringify({type: 'info', body: `Попытка ${engineState ? 'завести' : 'заглушить'} двигатель...`}))
     setTimeout(() => {
         browser.emit('c:f:toggleEngineState', {
             success: true,
             data: engineState,
             error: null
         })
+        alt.emit('c:c:alert', JSON.stringify({type: 'success', body: `Двигатель ${engineState ? 'запущен' : 'заглушен'}`}))
     }, 300)
 })
 
