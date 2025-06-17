@@ -1,20 +1,44 @@
-import alt, {onServer, Player, type WebView} from "alt-client";
-
-import './doorsHandlers/doorsHandlers.ts'
-import './engineHandlers/engineHandlers.ts'
-import './lightsHandlers/lightsHandlers.ts'
-import {doors} from "./doorsHandlers/mock/doors.ts";
-import {EDoors} from "./doorsHandlers/const/EDoors.ts";
-import {ELightMods} from "./lightsHandlers/const/ELightMods.ts";
-import {setPedConfigFlag, setVehicleEngineOn} from "natives";
-
+import alt, {onServer, type WebView} from "alt-client";
+import {setPedConfigFlag} from "natives";
+import {toggleEngineStateHandler} from "./engine-handlers/toggleEngineStateHandler.ts";
+import {getEngineStateHandler} from "./engine-handlers/getEngineStateHandler.ts";
+import {
+    toggleDoorDriverFrontStateHandler
+} from "./doors-handlers/handlers/driver-front/toggleDoorDriverFrontStateHandler.ts";
+import {
+    getDoorDriverFrontStateHandler
+} from "./doors-handlers/handlers/driver-front/getDoorDriverFrontStateHandler.ts";
+import {getDoorsStateHandler} from "./doors-handlers/handlers/doors/getDoorsStateHandler.ts";
+import {toggleDoorsStateHandler} from "./doors-handlers/handlers/doors/toggleDoorsStateHandler.ts";
+import {
+    getDoorDriverRearStateHandler
+} from "./doors-handlers/handlers/driver-rear/getDoorDriverRearStateHandler.ts";
+import { toggleDoorDriverRearStateHandler } from "./doors-handlers/handlers/driver-rear/toggleDoorDriverRearStateHandler.ts";
+import {getHoodStateHandler} from "./doors-handlers/handlers/hood/getHoodStateHandler.ts";
+import { toggleHoodStateHandler } from "./doors-handlers/handlers/hood/toggleHoodStateHandler.ts";
+import { getDoorPassengerFrontStateHandler } from "./doors-handlers/handlers/passenger-front/getDoorPassengerFrontStateHandler.ts";
+import {
+    toggleDoorPassengerFrontStateHandler
+} from "./doors-handlers/handlers/passenger-front/toggleDoorPassengerFrontStateHandler.ts";
+import {
+    getDoorPassengerRearStateHandler
+} from "./doors-handlers/handlers/passenger-rear/getDoorPassengerRearStateHandler.ts";
+import {
+    toggleDoorPassengerRearStateHandler
+} from "./doors-handlers/handlers/passenger-rear/toggleDoorPassengerRearStateHandler.ts";
+import {getTrunkStateHandler} from "./doors-handlers/handlers/trunk/getTrunkStateHandler.ts";
+import {toggleTrunkStateHandler} from "./doors-handlers/handlers/trunk/toggleTrunkStateHandler.ts";
+import {getLightsStateHandler} from "./lights-handlers/getLightsStateHandler.ts";
+import {setLightsStateHandler} from "./lights-handlers/setLightsStateHandler.ts";
+import {togglePowerSupplyStateHandler} from "./power-supply-handlers/togglePowerSupplyStateHandler.ts";
+import {getPowerSupplyStateHandler} from "./power-supply-handlers/getPowerSupplyStateHandler.ts";
 
 
 onServer("s:c:vehicleInit", () => {
     setPedConfigFlag(alt.Player.local.scriptID, 429, true);
 })
 
-let browser: WebView | null = null;
+export let browser: WebView | null = null;
 onServer("s:c:controlShow", () => {
     browser = new alt.WebView('http://resource/frontend/index.html')
     browser.focus();
@@ -25,229 +49,43 @@ onServer("s:c:controlShow", () => {
         alt.showCursor(false);
     })
 
-    let powerSupplyState = false;
-    browser.on('f:c:togglePowerSupplyState', () => {
-        powerSupplyState = !powerSupplyState
-        alt.emit('c:c:alert', JSON.stringify({type: 'info', body: `Попытка ${engineState ? 'включить' : 'выключить'} зажигание...`}))
-        setTimeout(() => {
-            browser?.emit('c:f:togglePowerSupplyState', {
-                success: true,
-                data: powerSupplyState,
-                error: null
-            })
 
-            alt.emit('c:c:alert', JSON.stringify({type: 'success', body: `Зажигание ${engineState ? 'включено' : 'выключено'}`}))
-        }, 300)
-    })
+    togglePowerSupplyStateHandler()
+    getPowerSupplyStateHandler()
 
-    browser.on("f:c:getPowerSupplyState", () => {
-        setTimeout(() => {
-            browser?.emit('c:f:getPowerSupplyState', {
-                success: true,
-                data: powerSupplyState,
-                error: null
-            })
-        }, 500)
-    })
-
-    let engineState = false;
-    browser.on('f:c:toggleEngineState', () => {
-        engineState = !engineState
-        alt.emit('c:c:alert', JSON.stringify({type: 'info', body: `Попытка ${engineState ? 'завести' : 'заглушить'} двигатель...`}))
-        setTimeout(() => {
-            browser?.emit('c:f:toggleEngineState', {
-                success: true,
-                data: engineState,
-                error: null
-            })
-
-            let veh = Player.local.vehicle?.scriptID
-            setVehicleEngineOn(veh!, engineState, true, true)
-
-            alt.emit('c:c:alert', JSON.stringify({type: 'success', body: `Двигатель ${engineState ? 'запущен' : 'заглушен'}`}))
-        }, 300)
-
-
-        //emitServer('c:s:toggleEngineState')
-    })
-
-    browser.on("f:c:getEngineState", () => {
-        setTimeout(() => {
-            browser?.emit('c:f:getEngineState', {
-                success: true,
-                data: engineState,
-                error: null
-            })
-        }, 1000)
-    })
+    getEngineStateHandler()
+    toggleEngineStateHandler()
 
 
 
-    let lightState = ELightMods.NoVehicleLightOverride;
-    browser.on('f:c:getLightsState', () => {
-        setTimeout(() => {
-            browser?.emit('c:f:getLightsState', {
-                success: true,
-                data: lightState,
-                error: null
-            })
-        }, 5000)
-    })
+    getDoorDriverFrontStateHandler()
+    toggleDoorDriverFrontStateHandler()
 
-    browser.on('f:c:setLightsState', (newLightsState: string) => {
-        lightState = +newLightsState as ELightMods
-        setTimeout(() => {
-            browser?.emit('c:f:setLightsState', {
-                success: true,
-                data: lightState,
-                error: null
-            })
-        }, 3000)
-    })
+    getDoorsStateHandler()
+    toggleDoorsStateHandler()
 
+    getDoorDriverFrontStateHandler()
+    toggleDoorDriverFrontStateHandler()
 
+    getDoorDriverRearStateHandler()
+    toggleDoorDriverRearStateHandler()
 
+    getHoodStateHandler()
+    toggleHoodStateHandler()
 
-    browser.on('f:c:getDoorsState', () => {
-        setTimeout(() => {
-            browser?.emit('c:f:getDoorsState', {
-                success: true,
-                data: false,
-                error: null
-            })
-        }, 3000)
-    })
+    getDoorPassengerFrontStateHandler()
+    toggleDoorPassengerFrontStateHandler()
 
-    browser.on('f:c:toggleDoorsState', () => {
-        setTimeout(() => {
-            browser?.emit('c:f:toggleDoorsState', {
-                success: true,
-                data: true,
-                error: null
-            })
-        }, 500)
-    })
+    getDoorPassengerRearStateHandler()
+    toggleDoorPassengerRearStateHandler()
+
+    getTrunkStateHandler()
+    toggleTrunkStateHandler()
 
 
-    browser.on('f:c:getHoodState', () => {
-        setTimeout(() => {
-            browser?.emit('c:f:getHoodState', {
-                success: true,
-                data: doors[EDoors.Hood],
-                error: null
-            })
-        }, 500)
-    })
-    browser.on('f:c:toggleHoodState', () => {
-        doors[EDoors.Hood] = !doors[EDoors.Hood]
-        setTimeout(() => {
-            browser?.emit('c:f:toggleHoodState', {
-                success: true,
-                data: doors[EDoors.Hood],
-                error: null
-            })
-        }, 500)
-    })
 
-    browser.on('f:c:getTrunkState', () => {
-        setTimeout(() => {
-            browser?.emit('c:f:getTrunkState', {
-                success: true,
-                data: doors[EDoors.Trunk],
-                error: null
-            })
-        }, 500)
-    })
-    browser.on('f:c:toggleTrunkState', () => {
-        doors[EDoors.Trunk] = !doors[EDoors.Trunk]
-        setTimeout(() => {
-            browser?.emit('c:f:toggleTrunkState', {
-                success: true,
-                data: doors[EDoors.Trunk],
-                error: null
-            })
-        }, 500)
-    })
-
-    browser.on('f:c:getDoorDriverFrontState', () => {
-        setTimeout(() => {
-            browser?.emit('c:f:getDoorDriverFrontState', {
-                success: true,
-                data: doors[EDoors.DriverFront],
-                error: null
-            })
-        }, 500)
-    })
-    browser.on('f:c:toggleDoorDriverFrontState', () => {
-        doors[EDoors.DriverFront] = !doors[EDoors.DriverFront]
-        setTimeout(() => {
-            browser?.emit('c:f:toggleDoorDriverFrontState', {
-                success: true,
-                data: doors[EDoors.DriverFront],
-                error: null
-            })
-        }, 500)
-    })
-
-    browser.on('f:c:getDoorDriverRearState', () => {
-        setTimeout(() => {
-            browser?.emit('c:f:getDoorDriverRearState', {
-                success: true,
-                data: doors[EDoors.DriverRear],
-                error: null
-            })
-        }, 500)
-    })
-    browser.on('f:c:toggleDoorDriverRearState', () => {
-        doors[EDoors.DriverRear] = !doors[EDoors.DriverRear]
-        setTimeout(() => {
-            browser?.emit('c:f:toggleDoorDriverRearState', {
-                success: true,
-                data: doors[EDoors.DriverRear],
-                error: null
-            })
-        }, 500)
-    })
-
-    browser.on('f:c:getDoorPassengerFrontState', () => {
-        setTimeout(() => {
-            browser?.emit('c:f:getDoorPassengerFrontState', {
-                success: true,
-                data: doors[EDoors.PassengerFront],
-                error: null
-            })
-        }, 500)
-    })
-    browser.on('f:c:toggleDoorPassengerFrontState', () => {
-        doors[EDoors.PassengerFront] = !doors[EDoors.PassengerFront]
-        setTimeout(() => {
-            browser?.emit('c:f:toggleDoorPassengerFrontState', {
-                success: true,
-                data: doors[EDoors.PassengerFront],
-                error: null
-            })
-        }, 500)
-    })
-
-    browser.on('f:c:getDoorPassengerRearState', () => {
-        setTimeout(() => {
-            browser?.emit('c:f:getDoorPassengerRearState', {
-                success: true,
-                data: doors[EDoors.PassengerRear],
-                error: null
-            })
-        }, 500)
-    })
-    browser.on('f:c:toggleDoorPassengerRearState', () => {
-        doors[EDoors.PassengerRear] = !doors[EDoors.PassengerRear]
-        setTimeout(() => {
-            browser?.emit('c:f:toggleDoorPassengerRearState', {
-                success: true,
-                data: doors[EDoors.PassengerRear],
-                error: null
-            })
-        }, 500)
-    })
+    getLightsStateHandler()
+    setLightsStateHandler()
 })
 
 
