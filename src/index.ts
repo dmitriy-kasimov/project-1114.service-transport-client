@@ -25,6 +25,31 @@ onServer("s:c:controlShow", () => {
         alt.showCursor(false);
     })
 
+    let powerSupplyState = false;
+    browser.on('f:c:togglePowerSupplyState', () => {
+        powerSupplyState = !powerSupplyState
+        alt.emit('c:c:alert', JSON.stringify({type: 'info', body: `Попытка ${engineState ? 'включить' : 'выключить'} зажигание...`}))
+        setTimeout(() => {
+            browser?.emit('c:f:togglePowerSupplyState', {
+                success: true,
+                data: powerSupplyState,
+                error: null
+            })
+
+            alt.emit('c:c:alert', JSON.stringify({type: 'success', body: `Зажигание ${engineState ? 'включено' : 'выключено'}`}))
+        }, 300)
+    })
+
+    browser.on("f:c:getPowerSupplyState", () => {
+        setTimeout(() => {
+            browser?.emit('c:f:getPowerSupplyState', {
+                success: true,
+                data: powerSupplyState,
+                error: null
+            })
+        }, 500)
+    })
+
     let engineState = false;
     browser.on('f:c:toggleEngineState', () => {
         engineState = !engineState
